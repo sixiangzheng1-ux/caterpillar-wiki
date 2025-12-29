@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小毛毛虫图鉴 - 档案库</title>
+    <style>
+        /* --- 基础设置 --- */
+        :root {
+            --sidebar-bg: #f5f5f5;
+            --main-bg: #ffffff;
+            --text-color: #333;
+            --accent-color: #800000; /* Wiki 经典的暗红色 */
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', "Microsoft YaHei", sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            color: var(--text-color);
+            overflow: hidden; /* 防止双滚动条 */
+        }
+
+        /* --- 左侧侧边栏 --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            padding-top: 20px;
+        }
+
+        .sidebar h2 {
+            font-size: 1.1rem;
+            padding: 0 20px;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto; /* 菜单过长时允许滚动 */
+        }
+
+        .sidebar li a {
+            display: block;
+            padding: 10px 25px;
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #e0e0e0;
+            transition: background 0.2s;
+        }
+
+        .sidebar li a:hover {
+            background-color: #e6e6e6;
+            text-decoration: none;
+            color: #003366;
+            border-left: 4px solid var(--accent-color); /* 悬停效果 */
+        }
+
+        /* --- 右侧主内容区 --- */
+        .main-container {
+            flex-grow: 1;
+            padding: 40px;
+            background-color: #fcfcfc;
+            overflow-y: auto; /* 内容过长时允许滚动 */
+        }
+
+        .content-box {
+            background: white;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* --- 标题与文字样式 --- */
+        h1#worm-title {
+            margin-top: 0;
+            font-size: 2.2rem;
+            border-bottom: 3px solid var(--accent-color);
+            padding-bottom: 10px;
+            color: #222;
+        }
+
+        .meta-info {
+            background: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #eee;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .latin-name {
+            font-style: italic;
+            color: #666;
+            margin: 0 0 10px 0;
+            font-size: 0.9rem;
+        }
+
+        /* --- 危险等级徽章样式 --- */
+        .danger-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- 图片样式 --- */
+        #worm-img-container {
+            text-align: center;
+            background: #eee;
+            padding: 10px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+        }
+
+        #worm-img {
+            max-width: 100%;
+            max-height: 500px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* --- 描述与列表 --- */
+        #worm-desc {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            border-left: 5px solid var(--accent-color);
+            padding-left: 10px;
+            background: #f4f4f4;
+            padding: 8px 10px;
+        }
+
+        .feature-list {
+            padding-left: 20px;
+        }
+
+        .feature-list li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        /* --- 加载提示 --- */
+        #loading-hint {
+            color: #888;
+            font-style: italic;
+            display: none;
+        }
+        
+        /* 错误信息样式 */
+        .error-msg {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border: 1px solid red;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>图鉴导航</h2>
+        <ul>
+            <li><a href="javascript:void(0)" onclick="location.reload()">返回</a></li>
+        </ul>
+        
+        <h2>毛毛虫列表</h2>
+        <ul>
+            <li><a href="javascript:void(0)" onclick="loadData('01')">尺蠖</a></li>
+            <li><a href="javascript:void(0)" onclick="loadData('02')">菜粉蝶 (测试)</a></li>
+        </ul>
+    </div>
+
+    <div class="main-container">
+        <div class="content-box">
+            
+            <div id="welcome-screen">
+                <h1 style="border-bottom:none;">数据库已连接</h1>
+                <p>欢迎来到毛毛虫搜索系统！</p>
+                <p>请点击左侧列表查阅详细档案。</p>
+                <div style="background:#ffeb3b; padding:15px; border-radius:5px; margin-top:20px; font-size:0.9rem;">
+                </div>
+            </div>
+
+            <div id="data-screen" style="display:none;">
+                
+                <h1 id="worm-title">加载中...</h1>
+                
+                <div id="error-box" class="error-msg"></div>
+
+                <div class="meta-info">
+                    <p class="latin-name" id="worm-latin"></p>
+                    <div id="danger-wrapper">
+                        危险等级 (1-20)：<span id="worm-level-badge" class="danger-badge">计算中...</span>
+                    </div>
+                </div>
+
+                <div id="loading-hint">正在解密档案...</div>
+
+                <div id="worm-img-container" style="display:none;">
+                    <img id="worm-img" src="" alt="Entity Image">
+                </div>
+
+                <p id="worm-desc"></p>
+
+                <div id="features-section">
+                    <h3>生物特征</h3>
+                    <ul class="feature-list" id="worm-features"></ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadData(fileId) {
+            // 1. 界面切换：隐藏欢迎页，显示数据页
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('data-screen').style.display = 'block';
+            document.getElementById('error-box').style.display = 'none';
+            document.getElementById('loading-hint').style.display = 'block';
+
+            // 2. 构建路径 (chiuyT.89/01.json)
+            const filePath = `chiuyT.89/${fileId}.json`;
+
+            // 3. 开始抓取数据
+            fetch(filePath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`无法找到文件 (Status: ${response.status})`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // --- 数据加载成功 ---
+                    document.getElementById('loading-hint').style.display = 'none';
+
+                    // 填入基础信息
+                    document.getElementById('worm-title').innerText = data.title;
+                    document.getElementById('worm-latin').innerText = data.latinName || '未知编号';
+                    document.getElementById('worm-desc').innerText = data.description;
+
+                    // --- 核心功能：处理危险等级 (1-20) ---
+                    const levelBadge = document.getElementById('worm-level-badge');
+                    const level = parseInt(data.level) || 0; // 如果没填，默认为0
+
+                    levelBadge.innerText = `LEVEL ${level}`;
+
+                    // 重置颜色类
+                    levelBadge.style.backgroundColor = '#ccc'; 
+
+                    if (level >= 15) {
+                        // 15-20: 极度危险 (红色)
+                        levelBadge.style.backgroundColor = '#d32f2f';
+                        levelBadge.innerText += " - 极度危险";
+                    } else if (level >= 8) {
+                        // 8-14: 警告 (橙色)
+                        levelBadge.style.backgroundColor = '#f57c00';
+                        levelBadge.innerText += " - 警告";
+                    } else {
+                        // 1-7: 安全 (绿色)
+                        levelBadge.style.backgroundColor = '#388e3c';
+                        levelBadge.innerText += " - 安全";
+                    }
+
+                    // --- 处理图片 ---
+                    const imgContainer = document.getElementById('worm-img-container');
+                    const imgElement = document.getElementById('worm-img');
+                    
+                    if (data.image) {
+                        imgElement.src = data.image;
+                        imgContainer.style.display = 'block';
+                        
+                        // 监听图片加载错误（防止图片路径写错显示裂图）
+                        imgElement.onerror = function() {
+                            imgContainer.style.display = 'none';
+                            console.warn("图片路径可能有误，请检查 JSON 中的 image 字段是否使用了相对路径 (如 img/xxx.png)");
+                        };
+                    } else {
+                        imgContainer.style.display = 'none';
+                    }
+
+                    // --- 处理特征列表 ---
+                    const list = document.getElementById('worm-features');
+                    list.innerHTML = ''; // 清空旧列表
+                    
+                    if (data.features && data.features.length > 0) {
+                        document.getElementById('features-section').style.display = 'block';
+                        data.features.forEach(item => {
+                            const li = document.createElement('li');
+                            li.innerText = item;
+                            list.appendChild(li);
+                        });
+                    } else {
+                        document.getElementById('features-section').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    // --- 错误处理 ---
+                    console.error("加载失败:", error);
+                    document.getElementById('loading-hint').style.display = 'none';
+                    const errorBox = document.getElementById('error-box');
+                    errorBox.style.display = 'block';
+                    errorBox.innerHTML = `<strong>数据读取失败：</strong><br>${error.message}<br><br>请检查：<br>1. 是否启动了 Live Server？<br>2. json 文件是否存在于 chiuyT.89 文件夹下？`;
+                });
+        }
+    </script>
+</body>
+</html>
